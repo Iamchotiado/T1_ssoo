@@ -39,6 +39,7 @@ int main(int argc, char const *argv[])
   printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
   if (pid_semaforo == 0) {
     execlp("../semaforo/main", "", NULL);
+    
   }
 
 }
