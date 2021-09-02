@@ -3,7 +3,7 @@
 
 #include "../file_manager/manager.h"
 
-int fabrica_id;
+int pid_semaforo;
 
 int main(int argc, char const *argv[])
 {
@@ -35,5 +35,10 @@ int main(int argc, char const *argv[])
 
   // CREAR HIJOS
   // Crear proceso Fábrica
-  fabrica_id = fork();
+  pid_semaforo = fork();
+  printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
+  if (pid_semaforo == 0) {
+    execlp("../semaforo/main", "", NULL);
+  }
+
 }
