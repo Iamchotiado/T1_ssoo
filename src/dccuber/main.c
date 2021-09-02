@@ -3,6 +3,8 @@
 
 #include "../file_manager/manager.h"
 
+int fabrica_id;
+
 int main(int argc, char const *argv[])
 {
   printf("I'm the DCCUBER process and my PID is: %i\n", getpid());
@@ -30,4 +32,8 @@ int main(int argc, char const *argv[])
 
   printf("Liberando memoria...\n");
   input_file_destroy(data_in); // Libera memoria
+
+  // CREAR HIJOS
+  // Crear proceso Fábrica
+  fabrica_id = fork();
 }
