@@ -36,10 +36,10 @@ int main(int argc, char const *argv[])
   // CREAR HIJOS
   // Crear proceso Fábrica
   pid_semaforo = fork();
-  printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
   if (pid_semaforo == 0) {
+    printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
     execlp("../semaforo/main", "", NULL);
-    
+    printf("CHILD: Exec done\n");
   }
 
 }
