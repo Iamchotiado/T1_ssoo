@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include "../file_manager/manager.h"
 
@@ -41,6 +42,11 @@ int main(int argc, char const *argv[])
   tiempos[1] = t_semaforo2;
   tiempos[2] = t_semaforo3;
   
+  // guardamos el tiempo de creacion entre cada repartidor
+  // y la cantidad de envios a realizar o repartidores por crear
+
+  char* tiempo_creacion = data_in->lines[1][0];
+  char* num_repartidores = data_in->lines[1][1];
 
   // CREAR HIJOS
   // Crear proceso Fábrica y 3 semáforos
@@ -50,6 +56,7 @@ int main(int argc, char const *argv[])
   {
     printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
+
   }
   else if (fabrica_id > 0)
   {
@@ -61,7 +68,9 @@ int main(int argc, char const *argv[])
         int num_semaforo = i + 1;
         char num_semaforo_str[2];
         sprintf(num_semaforo_str, "%i", num_semaforo);
-        execlp("./semaforo", num_semaforo_str, tiempos[i], NULL);
+        char fabrica_id_str[(int)((ceil(log10(fabrica_id))+1)*sizeof(char))];
+        sprintf(fabrica_id_str, "%i", fabrica_id);
+        execlp("./semaforo", num_semaforo_str, tiempos[i], fabrica_id_str, NULL);
         printf("CHILD: Exec done\n");
       }
     }
