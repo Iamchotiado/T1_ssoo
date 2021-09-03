@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
   pid_semaforo = fork();
   if (pid_semaforo == 0) {
     printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
-    execlp("./", "", NULL);
+    execlp("./semaforo", "", NULL);
     printf("CHILD: exec done\n");
   }
 
