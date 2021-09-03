@@ -50,16 +50,16 @@ int main(int argc, char const *argv[])
         // printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
         int num_semaforo = i + 1;
         printf("%s, ", data_in->lines[1][i]);
-        // execlp("./semaforo", num_semaforo, data_in->lines[1][2 + i], NULL);
+        execlp("./semaforo", num_semaforo, data_in->lines[1][2 + i], NULL);
         printf("CHILD: Exec done\n");
       }
     }
-    
-  // Esperar fábrica
-  // Destruir semaforos
 
   printf("Liberando memoria...\n");
   input_file_destroy(data_in); // Libera memoria
   }
+  
+  // Esperar fábrica
+  // Destruir semaforos
 }
 
