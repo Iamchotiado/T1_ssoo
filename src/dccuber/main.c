@@ -31,10 +31,9 @@ int main(int argc, char const *argv[])
   printf("\n");
 
   // CREAR HIJOS
-  // Crear proceso Fábrica
+  // Crear proceso Fábrica y 3 semáforos
   
   int fabrica_id = fork();
-  
   if (fabrica_id == 0)
   {
     printf("Se crea fabrica: %i \n", fabrica_id);
@@ -53,8 +52,9 @@ int main(int argc, char const *argv[])
       }
     }
 
-  printf("Liberando memoria...\n");
-  input_file_destroy(data_in); // Libera memoria
+  // DESCOMENTAR CUANDO SE HAGA WAIT
+  //printf("Liberando memoria...\n");
+  //input_file_destroy(data_in); 
   }
 
   // Esperar fábrica
