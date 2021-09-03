@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "../file_manager/manager.h"
 
@@ -30,13 +31,24 @@ int main(int argc, char const *argv[])
   }
   printf("\n");
 
+
+  // guardamos en un arreglo los tiempos entre cambios de luces en un semaforo
+  char** tiempos = malloc(3 * sizeof(char*));
+  char* t_semaforo1 = data_in->lines[1][2 + 0];
+  char* t_semaforo2 = data_in->lines[1][2 + 1];
+  char* t_semaforo3 = data_in->lines[1][2 + 2];
+  tiempos[0] = t_semaforo1;
+  tiempos[1] = t_semaforo2;
+  tiempos[2] = t_semaforo3;
+  
+
   // CREAR HIJOS
   // Crear proceso Fábrica y 3 semáforos
   
   int fabrica_id = fork();
   if (fabrica_id == 0)
   {
-    printf("Se crea fabrica: %i \n", fabrica_id);
+    printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
   }
   else if (fabrica_id > 0)
@@ -45,16 +57,17 @@ int main(int argc, char const *argv[])
     {
       pid_semaforo = fork();
       if (pid_semaforo == 0) {
+        
         int num_semaforo = i + 1;
-        // execlp("./semaforo", "", NULL);
-        // data_in->lines[1][2 + i]
-        execlp("./semaforo", num_semaforo, NULL);
+        char num_semaforo_str[2];
+        sprintf(num_semaforo_str, "%i", num_semaforo);
+        execlp("./semaforo", num_semaforo_str, tiempos[i], NULL);
         printf("CHILD: Exec done\n");
       }
     }
   
   // Espero hasta que fábrica termine para destruir semaforos
-  wait(NULL);
+  // wait(NULL);
 
   // DESCOMENTAR CUANDO SE HAGA WAIT
   //printf("Liberando memoria...\n");
