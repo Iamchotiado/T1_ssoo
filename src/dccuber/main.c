@@ -38,8 +38,8 @@ int main(int argc, char const *argv[])
   pid_semaforo = fork();
   if (pid_semaforo == 0) {
     printf("CHILD: El pid del semaforo %i\n", pid_semaforo);
-    execlp("../semaforo/main.c", "", NULL);
-    printf("CHILD: Exec done\n");
+    execlp("../semaforo", "", NULL);
+    printf("CHILD: exec done\n");
   }
 
 }
