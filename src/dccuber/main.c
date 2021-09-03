@@ -30,9 +30,6 @@ int main(int argc, char const *argv[])
   }
   printf("\n");
 
-  printf("Liberando memoria...\n");
-  input_file_destroy(data_in); // Libera memoria
-
   // CREAR HIJOS
   // Crear proceso Fábrica
   
@@ -57,6 +54,12 @@ int main(int argc, char const *argv[])
         printf("CHILD: Exec done\n");
       }
     }
+    
+  // Esperar fábrica
+  // Destruir semaforos
+
+  printf("Liberando memoria...\n");
+  input_file_destroy(data_in); // Libera memoria
   }
 }
 
