@@ -37,9 +37,8 @@ int main(int argc, char const *argv[])
   
   if (fabrica_id == 0)
   {
-    // Creamos a los repartidores
-    
     printf("Se crea fabrica: %i \n", fabrica_id);
+    // Creamos a los repartidores
   }
   else if (fabrica_id > 0)
   {
