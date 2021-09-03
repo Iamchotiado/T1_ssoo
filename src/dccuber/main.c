@@ -46,8 +46,8 @@ int main(int argc, char const *argv[])
       pid_semaforo = fork();
       if (pid_semaforo == 0) {
         int num_semaforo = i + 1;
-        execlp("./semaforo", "", NULL);
-        // execlp("./semaforo", num_semaforo, data_in->lines[1][2 + i], NULL);
+        // execlp("./semaforo", "", NULL);
+        execlp("./semaforo", num_semaforo, data_in->lines[1][2 + i], NULL);
         printf("CHILD: Exec done\n");
       }
     }
