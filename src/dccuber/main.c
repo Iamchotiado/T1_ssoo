@@ -24,7 +24,7 @@ void crear_repartidor(int signum){
     if (repartidores_creados < num_repartidores)
     {
       signal(SIGALRM, crear_repartidor); 
-      alarm(tiempo_repartidores);  
+      alarm(1);  
     }
     
   }
@@ -84,7 +84,7 @@ int main(int argc, char const *argv[])
     printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
     signal(SIGALRM, crear_repartidor); 
-    alarm(tiempo_repartidores);  
+    alarm(1);  
     
     
 
@@ -105,9 +105,11 @@ int main(int argc, char const *argv[])
         printf("CHILD: Exec done\n");
       }
       
-      
-      
     }
+  while (1)
+      {
+        
+      }
   
   // Espero hasta que fábrica termine para destruir semaforos
   // wait(NULL);
