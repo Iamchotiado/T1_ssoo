@@ -6,6 +6,30 @@
 #include "../file_manager/manager.h"
 
 int pid_semaforo;
+int repartidores_creados = 0;
+int num_repartidores;
+int tiempo_repartidores;
+
+void crear_repartidor(int signum){
+  printf("llego repartidor \n");
+  int repartidor_id = fork();
+  repartidores_creados ++;
+
+  if (repartidor_id == 0)
+  {
+    printf("Repartidor de FID: %i", repartidor_id);
+    // char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
+    // sprintf(repartidores_creados_str, "%i", repartidores_creados);
+    // execlp("./repartidor", repartidores_creados_str, NULL);
+    if (repartidores_creados < num_repartidores)
+    {
+      signal(SIGALRM, crear_repartidor); 
+      alarm(tiempo_repartidores);  
+    }
+    
+  }
+  
+}
 
 int main(int argc, char const *argv[])
 {
@@ -46,7 +70,10 @@ int main(int argc, char const *argv[])
   // y la cantidad de envios a realizar o repartidores por crear
 
   char* tiempo_creacion = data_in->lines[1][0];
-  char* num_repartidores = data_in->lines[1][1];
+  char* num_repartidores_str = data_in->lines[1][1];
+
+  tiempo_repartidores = atoi(tiempo_creacion);
+  num_repartidores = atoi(num_repartidores_str);
 
   // CREAR HIJOS
   // Crear proceso Fábrica y 3 semáforos
@@ -56,6 +83,10 @@ int main(int argc, char const *argv[])
   {
     printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
+    signal(SIGALRM, crear_repartidor); 
+    alarm(tiempo_repartidores);  
+    
+    
 
   }
   else if (fabrica_id > 0)
@@ -73,6 +104,9 @@ int main(int argc, char const *argv[])
         execlp("./semaforo", num_semaforo_str, tiempos[i], fabrica_id_str, NULL);
         printf("CHILD: Exec done\n");
       }
+      
+      
+      
     }
   
   // Espero hasta que fábrica termine para destruir semaforos
