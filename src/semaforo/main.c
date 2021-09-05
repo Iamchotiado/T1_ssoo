@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include<signal.h>
 #include <stdbool.h>
+#include <wait.h>
 
 void cambiar_estado(int signum){
   printf("llego \n");
