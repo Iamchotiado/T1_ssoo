@@ -12,7 +12,9 @@ int main(int argc, char const *argv[])
 {
   // argc me da el numero de variables. podi hacer un if
   int tiempo = atoi(argv[1]);
-  // printf("Semaforo numero: %s\n", argv[0]);
+  char* num_semaforo = argv[0];
+  int fabrica_pid = atoi(argv[2]);
+  printf("Semaforo numero: %s\n", num_semaforo);
   // printf("Tiempo en cambiar de color: %i\n", tiempo);
   // printf("PID Fabrica: %s\n", argv[2]);
   // printf("I'm the SEMAFORO process and my PID is: %i\n\n", getpid());
@@ -27,12 +29,14 @@ int main(int argc, char const *argv[])
     if (estado == 1)
     {
       estado = 0;
-      printf("Estado semaforo %s:  Rojo");
+      printf("Estado semaforo %s:  Rojo\n", num_semaforo);
+      send_signal_with_int(fabrica_pid, estado);
     }
-    if (estado == 0)
+    else if (estado == 0)
     {
       estado = 1;
-      printf("Estado semaforo %s:  Verde");
+      printf("Estado semaforo %s:  Verde\n", num_semaforo);
+      send_signal_with_int(fabrica_pid, estado);
     }
     // avisar a fabrica el estado del semaforo
   }

@@ -31,6 +31,10 @@ void crear_repartidor(){
     }
 }
 
+void avisar_repartidor(){
+  printf("holaaaaaaaaaaaaaa\n");
+};
+
 int main(int argc, char const *argv[])
 {
   printf("I'm the DCCUBER process and my PID is: %i\n", getpid());
@@ -92,6 +96,7 @@ int main(int argc, char const *argv[])
     // Creamos a los repartidores
     signal(SIGALRM, crear_repartidor);
     alarm(tiempo_repartidores);  
+    connect_sigaction(SIGUSR1, avisar_repartidor);
     while (1)
     {
       /* code */
