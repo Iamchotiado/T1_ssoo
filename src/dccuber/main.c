@@ -10,10 +10,12 @@ int repartidores_creados = 0;
 int num_repartidores;
 int tiempo_repartidores;
 int status;
-
+char* distancia_s1;
+char* distancia_s2;
+char* distancia_s3;
+char* distancia_b;
 
 void crear_repartidor(){
-  printf("llego repartidor \n");
   int repartidor_id = fork();
   repartidores_creados ++;
 
@@ -21,14 +23,12 @@ void crear_repartidor(){
   {
     char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
     sprintf(repartidores_creados_str, "%i", repartidores_creados);
-    execlp("./repartidor", repartidores_creados_str, NULL);
-    if (repartidores_creados < num_repartidores)
+    execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
+  }
+  if (repartidores_creados < num_repartidores)
     {
       alarm(tiempo_repartidores);  
     }
-    
-  }
-  
 }
 
 int main(int argc, char const *argv[])
@@ -74,7 +74,14 @@ int main(int argc, char const *argv[])
 
   tiempo_repartidores = atoi(tiempo_creacion);
   num_repartidores = atoi(num_repartidores_str);
-  // printf("tiempo: %i", tiempo_repartidores);
+  
+  // distancias a semaforos y bodegas
+  distancia_s1= data_in->lines[0][0];
+  distancia_s2 = data_in->lines[0][1];
+  distancia_s3 = data_in->lines[0][2];
+  distancia_b = data_in->lines[0][3];
+
+  
   // CREAR HIJOS
   // Crear proceso Fábrica y 3 semáforos
 
@@ -117,7 +124,7 @@ int main(int argc, char const *argv[])
 
   
   // Espero hasta que fábrica termine para destruir semaforos
-  // wait(NULL);
+  wait(NULL);
 
   // DESCOMENTAR CUANDO SE HAGA WAIT
   // printf("Liberando memoria...\n");
