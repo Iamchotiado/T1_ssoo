@@ -17,10 +17,50 @@ char* distancia_b;
 // cambiar el 10 por numero muy alto para asegurar
 int pid_repartidores[10];
 int crear = 0;
+int estado_s1 = 1;
+int estado_s2 = 1;
+int estado_s3 = 1;
 
 void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
-  // printf("LLLLLLLLLLLLLLLLLLLLLLLLL\n");
   int semaforo = siginfo -> si_value.sival_int;
+  // cambiamos el estado de los semaforos para los repartidores que van a ser creados
+
+  if (semaforo == 1)
+  {
+    if (estado_s1 == 1)
+    {
+      estado_s1 = 0;
+    }
+    else if (estado_s1 == 0)
+    {
+      estado_s1 = 1;
+    }
+  }
+
+  if (semaforo == 2)
+  {
+    if (estado_s2 == 1)
+    {
+      estado_s2 = 0;
+    }
+    else if (estado_s2 == 0)
+    {
+      estado_s2 = 1;
+    }
+  }
+
+  if (semaforo == 3)
+  {
+    if (estado_s3 == 1)
+    {
+      estado_s3 = 0;
+    }
+    else if (estado_s3 == 0)
+    {
+      estado_s3 = 1;
+    }
+  }
+
   for (int i = 0; i < repartidores_creados; i++)
   { 
     // if de bajo era para ver si los pid guardados en el array eran los correctos
@@ -35,7 +75,7 @@ void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
 
 void crear_repartidor(){
   crear = 1;
-}
+};
 
 
 int main(int argc, char const *argv[])
@@ -116,7 +156,51 @@ int main(int argc, char const *argv[])
         {
           char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
           sprintf(repartidores_creados_str, "%i", repartidores_creados);
-          execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
+
+          // Le mandamos ademas el estado actual de los semaforos
+          if (estado_s1 == 1 && estado_s2 == 1 && estado_s3 == 1)
+          {
+            char states[3] = "111";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 1 && estado_s2 == 1 && estado_s3 == 0)
+          {
+            char states[3] = "110";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 1 && estado_s2 == 0 && estado_s3 == 1)
+          {
+            char states[3] = "101";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 1 && estado_s2 == 0 && estado_s3 == 0)
+          {
+            char states[3] = "100";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 0 && estado_s2 == 1 && estado_s3 == 0)
+          {
+            char states[3] = "010";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 0 && estado_s2 == 0 && estado_s3 == 1)
+          {
+            char states[3] = "001";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 0 && estado_s2 == 0 && estado_s3 == 0)
+          {
+            char states[3] = "000";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          else if (estado_s1 == 0 && estado_s2 == 1 && estado_s3 == 1)
+          {
+            char states[3] = "011";
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+          }
+          
+
+          // execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
         }
         pid_repartidores[repartidores_creados - 1] = repartidor_id;
         printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
