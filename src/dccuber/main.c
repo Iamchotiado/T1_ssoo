@@ -14,6 +14,15 @@ char* distancia_s1;
 char* distancia_s2;
 char* distancia_s3;
 char* distancia_b;
+int pid_repartidores[];
+
+void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
+  int semaforo = siginfo -> si_value.sival_int;
+  for (int i = 0; i < num_repartidores; i++)
+  {
+    send_signal_with_int(pid_repartidores[i], semaforo);
+  }
+};
 
 void crear_repartidor(){
   int repartidor_id = fork();
@@ -25,15 +34,14 @@ void crear_repartidor(){
     sprintf(repartidores_creados_str, "%i", repartidores_creados);
     execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
   }
+  pid_repartidores[repartidores_creados - 1] = repartidor_id;
+
   if (repartidores_creados < num_repartidores)
     {
       alarm(tiempo_repartidores);  
     }
 }
 
-void avisar_repartidor(){
-  printf("holaaaaaaaaaaaaaa\n");
-};
 
 int main(int argc, char const *argv[])
 {
@@ -78,6 +86,9 @@ int main(int argc, char const *argv[])
 
   tiempo_repartidores = atoi(tiempo_creacion);
   num_repartidores = atoi(num_repartidores_str);
+
+  // array con los pid de los repartidores
+  int pid_repartidores[num_repartidores];
   
   // distancias a semaforos y bodegas
   distancia_s1= data_in->lines[0][0];
