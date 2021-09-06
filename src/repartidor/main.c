@@ -10,9 +10,9 @@ int turnos_sem2;
 int turnos_sem3;
 int turnos_bodega;
 
-int estado_s1 = 1;
-int estado_s2 = 1;
-int estado_s3 = 1;
+int estado_s1;
+int estado_s2;
+int estado_s3;
 
 
 void chequear_semaforo(int sig, siginfo_t *siginfo, void *ucontext) {
@@ -62,6 +62,13 @@ int main(int argc, char const *argv[])
   int dis_bodega = atoi(argv[3]);
   int numero_repartidor = atoi(argv[4]);
 
+  estado_s1 = argv[5][0] - '0';
+  estado_s2 = argv[5][1] - '0';
+  estado_s3 = argv[5][2] - '0';
+  printf("\nESTADO SEMAFORO 1 AL CREAR: %i\n", estado_s1);
+  printf("\nESTADO SEMAFORO 2 AL CREAR: %i\n", estado_s2);
+  printf("\nESTADO SEMAFORO 3 AL CREAR: %i\n", estado_s3);
+
   int llego = false;
   int turnos = 0;
   int posicion = 0;
@@ -74,7 +81,7 @@ int main(int argc, char const *argv[])
     
     if (posicion == dis_semaforo1)
     {
-      
+      turnos_sem1 = turnos;
       if (estado_s1 == 0)
       {
         turnos++;
@@ -84,11 +91,10 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      turnos_sem1 = turnos;
     }
     else if (posicion == dis_semaforo2)
     {
-      
+      turnos_sem2 = turnos;
       if (estado_s2 == 0)
       {
         turnos++;
@@ -98,12 +104,10 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      turnos_sem2 = turnos;
     }
     else if (posicion == dis_semaforo3)
     {
-      connect_sigaction(SIGUSR1, chequear_semaforo);
-      
+      turnos_sem3 = turnos;
       if (estado_s3 == 0)
       {
         turnos++;
@@ -113,7 +117,6 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      turnos_sem3 = turnos;
     }
     
     
