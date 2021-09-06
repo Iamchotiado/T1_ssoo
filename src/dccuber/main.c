@@ -14,32 +14,27 @@ char* distancia_s1;
 char* distancia_s2;
 char* distancia_s3;
 char* distancia_b;
-int pid_repartidores[];
+// cambiar el 10 por numero muy alto para asegurar
+int pid_repartidores[10];
+int crear = 0;
 
 void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
+  // printf("LLLLLLLLLLLLLLLLLLLLLLLLL\n");
   int semaforo = siginfo -> si_value.sival_int;
-  for (int i = 0; i < num_repartidores; i++)
-  {
+  for (int i = 0; i < repartidores_creados; i++)
+  { 
+    // if de bajo era para ver si los pid guardados en el array eran los correctos
+    // if (repartidores_creados == 4)
+    // {
+    //   printf("PID REPARTIDOR %i: %i\n", i, pid_repartidores[i]);
+    // }
+    
     send_signal_with_int(pid_repartidores[i], semaforo);
   }
 };
 
 void crear_repartidor(){
-  int repartidor_id = fork();
-  repartidores_creados ++;
-
-  if (repartidor_id == 0)
-  {
-    char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
-    sprintf(repartidores_creados_str, "%i", repartidores_creados);
-    execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
-  }
-  pid_repartidores[repartidores_creados - 1] = repartidor_id;
-  printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
-  if (repartidores_creados < num_repartidores)
-    {
-      alarm(tiempo_repartidores);  
-    }
+  crear = 1;
 }
 
 
@@ -88,7 +83,7 @@ int main(int argc, char const *argv[])
   num_repartidores = atoi(num_repartidores_str);
 
   // array con los pid de los repartidores
-  int pid_repartidores[num_repartidores];
+  // int pid_repartidores[num_repartidores];
   
   // distancias a semaforos y bodegas
   distancia_s1= data_in->lines[0][0];
@@ -106,17 +101,36 @@ int main(int argc, char const *argv[])
     // printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
     signal(SIGALRM, crear_repartidor);
-    alarm(tiempo_repartidores);  
+    alarm(tiempo_repartidores); 
     connect_sigaction(SIGUSR1, avisar_repartidor);
     while (1)
     {
-      /* code */
-    }
-    
-    
+      
+      if (crear == 1)
+      {
+        crear = 0;
+        int repartidor_id = fork();
+        repartidores_creados ++;
+
+        if (repartidor_id == 0)
+        {
+          char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
+          sprintf(repartidores_creados_str, "%i", repartidores_creados);
+          execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
+        }
+        pid_repartidores[repartidores_creados - 1] = repartidor_id;
+        printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
+        if (repartidores_creados < num_repartidores)
+        {
+          alarm(tiempo_repartidores);
+        }
+      }
     
 
+    }
+      
   }
+    
   else if (fabrica_id > 0)
   {
 

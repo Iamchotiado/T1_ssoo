@@ -16,7 +16,6 @@ int estado_s3 = 1;
 
 
 void chequear_semaforo(int sig, siginfo_t *siginfo, void *ucontext) {
-  
   int semaforo = siginfo -> si_value.sival_int;
   if (semaforo == 1)
   {
@@ -104,6 +103,7 @@ int main(int argc, char const *argv[])
     else if (posicion == dis_semaforo3)
     {
       connect_sigaction(SIGUSR1, chequear_semaforo);
+      
       if (estado_s3 == 0)
       {
         turnos++;
