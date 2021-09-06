@@ -103,7 +103,7 @@ int main(int argc, char const *argv[])
     }
     else if (posicion == dis_semaforo3)
     {
-      connect_sigaction(SIGUSR1, chequear_semaforo);
+      
       if (estado_s3 == 0)
       {
         turnos++;

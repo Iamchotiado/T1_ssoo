@@ -30,13 +30,13 @@ int main(int argc, char const *argv[])
     // {
     //   estado = 0;
     //   printf("Estado semaforo %i:  Rojo\n", num_semaforo);
-    //   send_signal_with_int(fabrica_pid, num_semaforo);
+    //   // send_signal_with_int(fabrica_pid, num_semaforo);
     // }
     // else if (estado == 0)
     // {
     //   estado = 1;
     //   printf("Estado semaforo %i:  Verde\n", num_semaforo);
-    //   send_signal_with_int(fabrica_pid, num_semaforo);
+    //   // send_signal_with_int(fabrica_pid, num_semaforo);
     // }
     send_signal_with_int(fabrica_pid, num_semaforo);
   }
