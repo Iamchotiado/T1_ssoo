@@ -85,7 +85,7 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      // turnos_sem1 = turnos;
+      turnos_sem1 = turnos;
     }
     else if (posicion == dis_semaforo2)
     {
@@ -99,7 +99,7 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      // turnos_sem2 = turnos;
+      turnos_sem2 = turnos;
     }
     else if (posicion == dis_semaforo3)
     {
@@ -113,7 +113,7 @@ int main(int argc, char const *argv[])
         posicion++;
         turnos++;
       }
-      // turnos_sem3 = turnos;
+      turnos_sem3 = turnos;
     }
     
     
@@ -130,5 +130,13 @@ int main(int argc, char const *argv[])
     printf("Posicion repartidor %i: %i,    Turno: %i\n", numero_repartidor, posicion, turnos);
     
   }
-
+  FILE *fp;
+  char nombre_archivo[27];
+  sprintf(nombre_archivo, "repartidor_%i.txt", numero_repartidor);
+  fp = fopen( nombre_archivo, "w");
+  fprintf(fp, "%i,%i,%i,%i\n", turnos_sem1, turnos_sem2, turnos_sem3, turnos_bodega);
+  fclose(fp);
+  
+  exit(0);
+  printf("Termino repartidor con ID: %i\n", getpid());
 }

@@ -35,7 +35,7 @@ void crear_repartidor(){
     execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
   }
   pid_repartidores[repartidores_creados - 1] = repartidor_id;
-
+  printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
   if (repartidores_creados < num_repartidores)
     {
       alarm(tiempo_repartidores);  
