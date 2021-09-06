@@ -15,6 +15,7 @@ char* distancia_s2;
 char* distancia_s3;
 char* distancia_b;
 int pid_repartidores[];
+int crear = 0;
 
 void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
   int semaforo = siginfo -> si_value.sival_int;
@@ -25,21 +26,7 @@ void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
 };
 
 void crear_repartidor(){
-  int repartidor_id = fork();
-  repartidores_creados ++;
-
-  if (repartidor_id == 0)
-  {
-    char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
-    sprintf(repartidores_creados_str, "%i", repartidores_creados);
-    execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
-  }
-  pid_repartidores[repartidores_creados - 1] = repartidor_id;
-  printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
-  if (repartidores_creados < num_repartidores)
-    {
-      alarm(tiempo_repartidores);  
-    }
+  crear = 1;
 }
 
 
@@ -105,18 +92,36 @@ int main(int argc, char const *argv[])
   {
     // printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
-    signal(SIGALRM, crear_repartidor);
-    alarm(tiempo_repartidores);  
     connect_sigaction(SIGUSR1, avisar_repartidor);
-    while (1)
+    signal(SIGALRM, crear_repartidor);
+    alarm(2); 
+    while (repartidores_creados < num_repartidores)
     {
-      /* code */
+      
+      if (crear == 1)
+      {
+        int repartidor_id = fork();
+        repartidores_creados ++;
+
+        if (repartidor_id == 0)
+        {
+          char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
+          sprintf(repartidores_creados_str, "%i", repartidores_creados);
+          execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, NULL);
+        }
+        pid_repartidores[repartidores_creados - 1] = repartidor_id;
+        printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
+        if (repartidores_creados < num_repartidores)
+        {
+          crear = 0;
+          alarm(2);
+        }
+      }
+
+    }
+      
     }
     
-    
-    
-
-  }
   else if (fabrica_id > 0)
   {
 
