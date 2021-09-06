@@ -14,6 +14,7 @@ char* distancia_s1;
 char* distancia_s2;
 char* distancia_s3;
 char* distancia_b;
+// cambiar el 10 por numero muy alto para asegurar
 int pid_repartidores[10];
 int crear = 0;
 
@@ -22,10 +23,11 @@ void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
   int semaforo = siginfo -> si_value.sival_int;
   for (int i = 0; i < repartidores_creados; i++)
   { 
-    if (repartidores_creados == 4)
-    {
-      printf("PID REPARTIDOR %i: %i\n", i, pid_repartidores[i]);
-    }
+    // if de bajo era para ver si los pid guardados en el array eran los correctos
+    // if (repartidores_creados == 4)
+    // {
+    //   printf("PID REPARTIDOR %i: %i\n", i, pid_repartidores[i]);
+    // }
     
     send_signal_with_int(pid_repartidores[i], semaforo);
   }

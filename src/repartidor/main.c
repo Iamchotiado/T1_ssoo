@@ -16,7 +16,6 @@ int estado_s3 = 1;
 
 
 void chequear_semaforo(int sig, siginfo_t *siginfo, void *ucontext) {
-  printf("HOLAAAAAAAA\n");
   int semaforo = siginfo -> si_value.sival_int;
   if (semaforo == 1)
   {
