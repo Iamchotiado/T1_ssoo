@@ -25,16 +25,20 @@ int estado_s1 = 1;
 int estado_s2 = 1;
 int estado_s3 = 1;
 
-void terminar_procesos(int sig, siginfo_t *siginfo, void *ucontext){
-  int semaforo = siginfo -> si_value.sival_int;
-  printf("Preparandose para matar a todos%i\n",semaforo);
-  kill(getppid(), SIGINT);
+void handler_fabrica_sigabrt(){
+  for (int i = 0; i < repartidores_creados; i++)
+  {
+    printf("MATANDO A REPARTIDOR: %i\n", pid_repartidores[i]);
+    kill(pid_repartidores[i], SIGABRT);
+    waitpid(pid_repartidores[i], NULL, 0);
+  }
+  exit(getpid());
 };
 
 void handler_main_sigint(){
-  printf("Mataremos a la fabrica y los semaforos\n");
+  printf("Mataremos a la fabrica, repartidores y los semaforos\n");
   kill(fabrica_id_rep, SIGABRT);
-  // wait(NULL);
+  waitpid(fabrica_id_rep, NULL, 0);
   for (int i = 0; i < 3; i++)
   {
     printf("MATANDO SEMAFORO %i\n", i);
@@ -177,12 +181,12 @@ int main(int argc, char const *argv[])
   {
     // printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
-    
+    signal(SIGABRT, handler_fabrica_sigabrt);
     signal(SIGALRM, crear_repartidor);
-    // alarm(tiempo_repartidores); 
-    alarm(1);
+    alarm(tiempo_repartidores); 
+    // alarm(1);
     connect_sigaction(SIGUSR1, avisar_repartidor);
-    // signal(SIGUSR2, terminar_procesos);
+    
 
     while (1)
     {
@@ -254,16 +258,9 @@ int main(int argc, char const *argv[])
         printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
         if (repartidores_creados < num_repartidores)
         {
-          // alarm(tiempo_repartidores);
-          alarm(1);
+          alarm(tiempo_repartidores);
+          // alarm(1);
         }
-        if (termino_fabrica == 1)
-        {
-          printf("ENTRO\n");
-          break;
-        }
-        
-        
       }
     
 

@@ -5,15 +5,32 @@
 #include <stdbool.h>
 
 
-int turnos_sem1;
-int turnos_sem2;
-int turnos_sem3;
-int turnos_bodega;
+int turnos_sem1 = -1;
+int turnos_sem2 = -1;
+int turnos_sem3 = -1;
+int turnos_bodega = -1;
+int numero_repartidor;
 
 int estado_s1;
 int estado_s2;
 int estado_s3;
+int escrito = 0;
 
+void handler_repartidor_sigabrt() {
+  printf("Escribimos resultados repartidores\n");
+  if (escrito == 0)
+  {
+    
+    FILE *fp;
+    char nombre_archivo[27];
+    sprintf(nombre_archivo, "repartidor_%i.txt", numero_repartidor);
+    fp = fopen( nombre_archivo, "w");
+    fprintf(fp, "%i,%i,%i,%i\n", turnos_sem1, turnos_sem2, turnos_sem3, turnos_bodega);
+    fclose(fp);
+    escrito = 1;
+  }
+  exit(getpid());
+};
 
 void chequear_semaforo(int sig, siginfo_t *siginfo, void *ucontext) {
   int semaforo = siginfo -> si_value.sival_int;
@@ -60,8 +77,8 @@ int main(int argc, char const *argv[])
   int dis_semaforo2 = atoi(argv[1]);
   int dis_semaforo3 = atoi(argv[2]);
   int dis_bodega = atoi(argv[3]);
-  int numero_repartidor = atoi(argv[4]);
-
+  numero_repartidor = atoi(argv[4]);
+  signal(SIGABRT, handler_repartidor_sigabrt);
   estado_s1 = argv[5][0] - '0';
   estado_s2 = argv[5][1] - '0';
   estado_s3 = argv[5][2] - '0';
@@ -76,15 +93,17 @@ int main(int argc, char const *argv[])
   int turnos = 0;
   int posicion = 0;
   connect_sigaction(SIGUSR1, chequear_semaforo);
+  
+
   while (llego == false)
   {
     sleep(1);
     // preguntar si estoy en un semaforo y si este esta verde
     // turnos++;
     
-    if (posicion == dis_semaforo1)
+    if (posicion == dis_semaforo1 - 1)
     {
-      turnos_sem1 = turnos;
+      
       if (estado_s1 == 0)
       {
         turnos++;
@@ -93,11 +112,12 @@ int main(int argc, char const *argv[])
       {
         posicion++;
         turnos++;
+        turnos_sem1 = turnos;
       }
     }
-    else if (posicion == dis_semaforo2)
+    else if (posicion == dis_semaforo2 - 1)
     {
-      turnos_sem2 = turnos;
+      
       if (estado_s2 == 0)
       {
         turnos++;
@@ -106,11 +126,12 @@ int main(int argc, char const *argv[])
       {
         posicion++;
         turnos++;
+        turnos_sem2 = turnos;
       }
     }
-    else if (posicion == dis_semaforo3)
+    else if (posicion == dis_semaforo3 - 1)
     {
-      turnos_sem3 = turnos;
+      
       if (estado_s3 == 0)
       {
         turnos++;
@@ -119,12 +140,15 @@ int main(int argc, char const *argv[])
       {
         posicion++;
         turnos++;
+        turnos_sem3 = turnos;
       }
     }
     
     
-    else if (posicion == dis_bodega)
+    else if (posicion == dis_bodega - 1)
     {
+      posicion++;
+      turnos++;
       // guardar estadisticas en archivo
       turnos_bodega = turnos;
       llego = true;
@@ -143,7 +167,8 @@ int main(int argc, char const *argv[])
   fp = fopen( nombre_archivo, "w");
   fprintf(fp, "%i,%i,%i,%i\n", turnos_sem1, turnos_sem2, turnos_sem3, turnos_bodega);
   fclose(fp);
-  
+  escrito = 1;
+
   if (numero_repartidor == repartidores_por_crear)
   {
     // avisamos a la fabrica que llego a la bodega el ultimo repartidor
@@ -151,7 +176,11 @@ int main(int argc, char const *argv[])
     // kill(SIGUSR2, getppid());
     kill(pid_fabrica, SIGINT);
   };
-
+  while (1)
+  {
+    /* code */
+  };
+  
   // exit(getpid());
   // printf("Termino repartidor con ID: %i\n", getpid());
 }
