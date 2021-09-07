@@ -3,9 +3,11 @@
 #include<signal.h>
 #include <stdbool.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 
-void cambiar_estado(int signum){
-  printf("llego \n");
+void escribir_resultados(){
+  printf("llego HAY que escribir resultados \n");
+  exit(getpid());
 }
 
 int main(int argc, char const *argv[])
@@ -22,7 +24,7 @@ int main(int argc, char const *argv[])
   // Verde = 1 Rojo = 0
   int estado = 1;
   // avisar a fabrica estado de semaforo
-
+  signal(SIGABRT, escribir_resultados);
   while (true)
   {
     sleep(tiempo);

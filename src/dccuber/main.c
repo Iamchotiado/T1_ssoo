@@ -16,62 +16,96 @@ char* distancia_s3;
 char* distancia_b;
 // cambiar el 10 por numero muy alto para asegurar
 int pid_repartidores[10];
+int pid_semaforos[3];
+int fabrica_id_rep;
+char fabrica_id_rep_str[8];
+int termino_fabrica = 0;
 int crear = 0;
 int estado_s1 = 1;
 int estado_s2 = 1;
 int estado_s3 = 1;
 
+void terminar_procesos(int sig, siginfo_t *siginfo, void *ucontext){
+  int semaforo = siginfo -> si_value.sival_int;
+  printf("Preparandose para matar a todos%i\n",semaforo);
+  kill(getppid(), SIGINT);
+};
+
+void handler_main_sigint(){
+  printf("Mataremos a la fabrica y los semaforos\n");
+  kill(fabrica_id_rep, SIGABRT);
+  // wait(NULL);
+  for (int i = 0; i < 3; i++)
+  {
+    printf("MATANDO SEMAFORO %i\n", i);
+    // matamos a los semaforos
+    kill(pid_semaforos[i], SIGABRT);
+    waitpid(pid_semaforos[i], NULL, 0);
+  }
+  exit(getpid());
+};
+
 void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
   int semaforo = siginfo -> si_value.sival_int;
   // cambiamos el estado de los semaforos para los repartidores que van a ser creados
-
-  if (semaforo == 1)
+  // Si el ultimo repartidor llego
+  // printf("EL NUMERO DE SEMAFORO ES: %i\n", semaforo);
+  if (semaforo == 4)
   {
-    if (estado_s1 == 1)
-    {
-      estado_s1 = 0;
-    }
-    else if (estado_s1 == 0)
-    {
-      estado_s1 = 1;
-    }
+    printf("Preparandose para matar a todosFAKE\n");
   }
-
-  if (semaforo == 2)
+  else
   {
-    if (estado_s2 == 1)
+    if (semaforo == 1)
     {
-      estado_s2 = 0;
+      if (estado_s1 == 1)
+      {
+        estado_s1 = 0;
+      }
+      else if (estado_s1 == 0)
+      {
+        estado_s1 = 1;
+      }
     }
-    else if (estado_s2 == 0)
-    {
-      estado_s2 = 1;
-    }
-  }
 
-  if (semaforo == 3)
-  {
-    if (estado_s3 == 1)
+    if (semaforo == 2)
     {
-      estado_s3 = 0;
+      if (estado_s2 == 1)
+      {
+        estado_s2 = 0;
+      }
+      else if (estado_s2 == 0)
+      {
+        estado_s2 = 1;
+      }
     }
-    else if (estado_s3 == 0)
-    {
-      estado_s3 = 1;
-    }
-  }
 
-  for (int i = 0; i < repartidores_creados; i++)
-  { 
-    // if de bajo era para ver si los pid guardados en el array eran los correctos
-    // if (repartidores_creados == 4)
-    // {
-    //   printf("PID REPARTIDOR %i: %i\n", i, pid_repartidores[i]);
-    // }
-    
-    send_signal_with_int(pid_repartidores[i], semaforo);
+    if (semaforo == 3)
+    {
+      if (estado_s3 == 1)
+      {
+        estado_s3 = 0;
+      }
+      else if (estado_s3 == 0)
+      {
+        estado_s3 = 1;
+      }
+    }
+
+    for (int i = 0; i < repartidores_creados; i++)
+    { 
+      // if de bajo era para ver si los pid guardados en el array eran los correctos
+      // if (repartidores_creados == 4)
+      // {
+      //   printf("PID REPARTIDOR %i: %i\n", i, pid_repartidores[i]);
+      // }
+      
+      send_signal_with_int(pid_repartidores[i], semaforo);
+    }
   }
 };
+  
+  
 
 void crear_repartidor(){
   crear = 1;
@@ -131,18 +165,25 @@ int main(int argc, char const *argv[])
   distancia_s3 = data_in->lines[0][2];
   distancia_b = data_in->lines[0][3];
 
-  
+  // signal sigint
+  signal(SIGINT, handler_main_sigint);
   // CREAR HIJOS
   // Crear proceso Fábrica y 3 semáforos
+  char main_id_str[(int)((ceil(log10(getpid()))+1)*sizeof(char))];
+  sprintf(main_id_str, "%i", getpid());
 
   int fabrica_id = fork();
   if (fabrica_id == 0)
   {
     // printf("Se crea fabrica: %i \n\n", fabrica_id);
     // Creamos a los repartidores
+    
     signal(SIGALRM, crear_repartidor);
-    alarm(tiempo_repartidores); 
+    // alarm(tiempo_repartidores); 
+    alarm(1);
     connect_sigaction(SIGUSR1, avisar_repartidor);
+    // signal(SIGUSR2, terminar_procesos);
+
     while (1)
     {
       
@@ -154,49 +195,56 @@ int main(int argc, char const *argv[])
 
         if (repartidor_id == 0)
         {
+          // repartidores creados hasta el minuto
           char repartidores_creados_str[(int)((ceil(log10(repartidores_creados))+1)*sizeof(char))];
           sprintf(repartidores_creados_str, "%i", repartidores_creados);
+          // repartidores que hay que crear
+          // char num_repartidores_str[(int)((ceil(log10(num_repartidores))+1)*sizeof(char))];
+          // sprintf(num_repartidores_str, "%i", num_repartidores);
+          // id de la fabrica
+          // char fabrica_id_rep_str[(int)((ceil(log10(fabrica_id_rep))+1)*sizeof(char))];
+          // sprintf(fabrica_id_rep_str, "%i", fabrica_id_rep);
 
           // Le mandamos ademas el estado actual de los semaforos
           if (estado_s1 == 1 && estado_s2 == 1 && estado_s3 == 1)
           {
             char states[3] = "111";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 1 && estado_s2 == 1 && estado_s3 == 0)
           {
             char states[3] = "110";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 1 && estado_s2 == 0 && estado_s3 == 1)
           {
             char states[3] = "101";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 1 && estado_s2 == 0 && estado_s3 == 0)
           {
             char states[3] = "100";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 0 && estado_s2 == 1 && estado_s3 == 0)
           {
             char states[3] = "010";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 0 && estado_s2 == 0 && estado_s3 == 1)
           {
             char states[3] = "001";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 0 && estado_s2 == 0 && estado_s3 == 0)
           {
             char states[3] = "000";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           else if (estado_s1 == 0 && estado_s2 == 1 && estado_s3 == 1)
           {
             char states[3] = "011";
-            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, NULL);
+            execlp("./repartidor", distancia_s1, distancia_s2, distancia_s3, distancia_b, repartidores_creados_str, states, num_repartidores_str, main_id_str, NULL);
           }
           
 
@@ -206,8 +254,16 @@ int main(int argc, char const *argv[])
         printf("REPARTIDOR CREADO ID: %i\n", repartidor_id);
         if (repartidores_creados < num_repartidores)
         {
-          alarm(tiempo_repartidores);
+          // alarm(tiempo_repartidores);
+          alarm(1);
         }
+        if (termino_fabrica == 1)
+        {
+          printf("ENTRO\n");
+          break;
+        }
+        
+        
       }
     
 
@@ -217,21 +273,23 @@ int main(int argc, char const *argv[])
     
   else if (fabrica_id > 0)
   {
+    char fabrica_id_str[(int)((ceil(log10(fabrica_id))+1)*sizeof(char))];
+    sprintf(fabrica_id_str, "%i", fabrica_id);
+    // id de fabrica que sera enviado al repartidor
+    fabrica_id_rep = fabrica_id;
+    sprintf(fabrica_id_rep_str, "%i", fabrica_id_rep);
 
     for (int i = 0; i < 3; i++)
     {
       pid_semaforo = fork();
       if (pid_semaforo == 0) {
-        
         int num_semaforo = i + 1;
         char num_semaforo_str[2];
         sprintf(num_semaforo_str, "%i", num_semaforo);
-        char fabrica_id_str[(int)((ceil(log10(fabrica_id))+1)*sizeof(char))];
-        sprintf(fabrica_id_str, "%i", fabrica_id);
         execlp("./semaforo", num_semaforo_str, tiempos[i], fabrica_id_str, NULL);
         printf("CHILD: Exec done\n");
       }
-    
+      pid_semaforos[i] = pid_semaforo;
     }
     
     
@@ -239,7 +297,6 @@ int main(int argc, char const *argv[])
   
   // Espero hasta que fábrica termine para destruir semaforos
   wait(NULL);
-
   // DESCOMENTAR CUANDO SE HAGA WAIT
   // printf("Liberando memoria...\n");
   //input_file_destroy(data_in); 

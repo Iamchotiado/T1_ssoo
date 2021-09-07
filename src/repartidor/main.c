@@ -68,6 +68,9 @@ int main(int argc, char const *argv[])
   printf("\nESTADO SEMAFORO 1 AL CREAR: %i\n", estado_s1);
   printf("\nESTADO SEMAFORO 2 AL CREAR: %i\n", estado_s2);
   printf("\nESTADO SEMAFORO 3 AL CREAR: %i\n", estado_s3);
+  int repartidores_por_crear = atoi(argv[6]);
+  int pid_fabrica = atoi(argv[7]);
+  printf("Numero repartidor: %i, Por crear: %i\n", numero_repartidor, repartidores_por_crear);
 
   int llego = false;
   int turnos = 0;
@@ -125,6 +128,7 @@ int main(int argc, char const *argv[])
       // guardar estadisticas en archivo
       turnos_bodega = turnos;
       llego = true;
+      break;
     }
     else {
       posicion++;
@@ -140,6 +144,14 @@ int main(int argc, char const *argv[])
   fprintf(fp, "%i,%i,%i,%i\n", turnos_sem1, turnos_sem2, turnos_sem3, turnos_bodega);
   fclose(fp);
   
-  exit(0);
-  printf("Termino repartidor con ID: %i\n", getpid());
+  if (numero_repartidor == repartidores_por_crear)
+  {
+    // avisamos a la fabrica que llego a la bodega el ultimo repartidor
+    printf("Termino ultimo repartidor\n");
+    // kill(SIGUSR2, getppid());
+    kill(pid_fabrica, SIGINT);
+  };
+
+  // exit(getpid());
+  // printf("Termino repartidor con ID: %i\n", getpid());
 }
