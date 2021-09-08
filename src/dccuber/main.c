@@ -24,6 +24,8 @@ int crear = 0;
 int estado_s1 = 1;
 int estado_s2 = 1;
 int estado_s3 = 1;
+InputFile *data_in;
+char** tiempos;
 
 void handler_fabrica_sigabrt(){
   for (int i = 0; i < repartidores_creados; i++)
@@ -46,6 +48,8 @@ void handler_main_sigint(){
     kill(pid_semaforos[i], SIGABRT);
     waitpid(pid_semaforos[i], NULL, 0);
   }
+  input_file_destroy(data_in);
+  free(tiempos);
   exit(getpid());
 };
 
@@ -56,7 +60,7 @@ void avisar_repartidor(int sig, siginfo_t *siginfo, void *ucontext){
   // printf("EL NUMERO DE SEMAFORO ES: %i\n", semaforo);
   if (semaforo == 4)
   {
-    printf("Preparandose para matar a todosFAKE\n");
+    printf("Nunca entra aca\n");
   }
   else
   {
@@ -121,7 +125,7 @@ int main(int argc, char const *argv[])
   printf("I'm the DCCUBER process and my PID is: %i\n", getpid());
 
   char *filename = "input.txt";
-  InputFile *data_in = read_file(filename); // Lee
+  data_in = read_file(filename); // Lee
 
   printf("Leyendo el archivo %s...\n", filename);
   printf("- Lineas en archivo: %i\n", data_in->len); // Se accede al largo
@@ -143,7 +147,7 @@ int main(int argc, char const *argv[])
 
 
   // guardamos en un arreglo los tiempos entre cambios de luces en un semaforo
-  char** tiempos = malloc(3 * sizeof(char*));
+  tiempos = malloc(3 * sizeof(char*));
   char* t_semaforo1 = data_in->lines[1][2 + 0];
   char* t_semaforo2 = data_in->lines[1][2 + 1];
   char* t_semaforo3 = data_in->lines[1][2 + 2];
@@ -293,10 +297,13 @@ int main(int argc, char const *argv[])
 
   
   // Espero hasta que fábrica termine para destruir semaforos
+  
+  
   wait(NULL);
+  // free(tiempos);
   // DESCOMENTAR CUANDO SE HAGA WAIT
   // printf("Liberando memoria...\n");
-  //input_file_destroy(data_in); 
+  // input_file_destroy(data_in); 
   }
 
   // Esperar fábrica

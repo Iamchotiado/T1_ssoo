@@ -152,6 +152,7 @@ int main(int argc, char const *argv[])
       // guardar estadisticas en archivo
       turnos_bodega = turnos;
       llego = true;
+      printf("Posicion repartidor %i(en bodega): %i,    Turno: %i\n", numero_repartidor, posicion, turnos);
       break;
     }
     else {
