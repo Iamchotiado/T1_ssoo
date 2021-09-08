@@ -27,6 +27,7 @@ void handler_repartidor_sigabrt() {
     fp = fopen( nombre_archivo, "w");
     fprintf(fp, "%i,%i,%i,%i\n", turnos_sem1, turnos_sem2, turnos_sem3, turnos_bodega);
     fclose(fp);
+    
     escrito = 1;
   }
   exit(getpid());
@@ -88,7 +89,7 @@ int main(int argc, char const *argv[])
   int repartidores_por_crear = atoi(argv[6]);
   int pid_fabrica = atoi(argv[7]);
   printf("Numero repartidor: %i, Por crear: %i\n", numero_repartidor, repartidores_por_crear);
-
+  signal(SIGINT, SIG_IGN);
   int llego = false;
   int turnos = 0;
   int posicion = 0;

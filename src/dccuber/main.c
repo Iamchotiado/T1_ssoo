@@ -124,7 +124,7 @@ int main(int argc, char const *argv[])
 {
   printf("I'm the DCCUBER process and my PID is: %i\n", getpid());
 
-  char *filename = "input.txt";
+  char *filename = argv[1];
   data_in = read_file(filename); // Lee
 
   printf("Leyendo el archivo %s...\n", filename);

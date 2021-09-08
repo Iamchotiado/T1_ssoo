@@ -17,7 +17,6 @@ void escribir_resultados(){
   fp = fopen( nombre_archivo, "w");
   fprintf(fp, "%i", cantidad_cambios);
   fclose(fp);
-
   exit(getpid());
 }
 
@@ -31,7 +30,6 @@ int main(int argc, char const *argv[])
   // printf("Tiempo en cambiar de color: %i\n", tiempo);
   // printf("PID Fabrica: %s\n", argv[2]);
   // printf("I'm the SEMAFORO process and my PID is: %i\n\n", getpid());
-
   // Verde = 1 Rojo = 0
   // int estado = 1;
   // avisar a fabrica estado de semaforo
