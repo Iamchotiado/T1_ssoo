@@ -15,10 +15,10 @@ char* distancia_s2;
 char* distancia_s3;
 char* distancia_b;
 // cambiar el 10 por numero muy alto para asegurar
-int pid_repartidores[10];
+int pid_repartidores[200];
 int pid_semaforos[3];
 int fabrica_id_rep;
-char fabrica_id_rep_str[8];
+char fabrica_id_rep_str[20];
 int termino_fabrica = 0;
 int crear = 0;
 int estado_s1 = 1;
